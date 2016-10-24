@@ -2,7 +2,7 @@ import pygame, sys
 
 class CatchPhrase():
     def __init__(self, word_list, sound_name):
-        self.screen = pygame.display.set_mode((1366, 768), pygame.FULLSCREEN)
+        self.screen = pygame.display.set_mode((1366, 768))#, pygame.FULLSCREEN)
         self.font = pygame.font.Font("times.ttf", 35)
         self.clock = pygame.time.Clock()
         self.word_file = open(word_list)
@@ -21,6 +21,17 @@ class CatchPhrase():
         self.playing = False
         self.next_button = TextBox(self, [self.screen.get_rect().centerx, self.screen.get_height() - 50], "Next")
         self.next_button.adjust(-self.next_button.rect.width/2, 0)
+        try:
+            save_data = open("save.dat", 'r')
+            self.start_index = int(save_data.readline().strip('\n')) + 1
+            save_data.close()
+        except:
+            save_data = open("save.dat", 'w')
+            save_data.write(str(0))
+            save_data.close()
+            self.start_index = 0
+        for i in range(self.start_index):
+            self.update_word()
         self.loop()
     def loop(self):
         done = False
@@ -29,7 +40,7 @@ class CatchPhrase():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     changed = False
                     if self.next_button.rect.collidepoint(pygame.mouse.get_pos()) and self.playing:
-                        self.update_word()
+                        self.new_word()
                         changed = True
                     elif self.team1.rect.collidepoint(pygame.mouse.get_pos()):
                         self.point_sound.play()
@@ -50,7 +61,7 @@ class CatchPhrase():
                     elif self.startstop_button.rect.collidepoint(pygame.mouse.get_pos()):
                         if not self.playing:
                             self.playing = True
-                            self.update_word()
+                            self.new_word()
                             pygame.mixer.music.play()
                         else:
                             self.playing = False
@@ -68,11 +79,17 @@ class CatchPhrase():
             self.clock.tick(20)
         pygame.quit()
         sys.exit()
+    def new_word(self):
+        self.update_word()
+        self.start_index += 1
+        save_data = open("save.dat", 'w')
+        save_data.write(str(self.start_index))
+        save_data.close()
     def update_word(self):
         self.text_boxes.remove(self.word)
         self.word = TextBox(self, self.screen.get_rect().center, self.word_file.readline().strip('\n'))
         self.word.adjust(-self.word.rect.width/2, 0)
-
+        
 class TextBox(pygame.sprite.Sprite):
     def __init__(self, game, location, text):
         pygame.sprite.Sprite.__init__(self)
