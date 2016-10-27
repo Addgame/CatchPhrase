@@ -1,8 +1,8 @@
-import pygame, sys
+import pygame, sys, json
 
 class CatchPhrase():
     def __init__(self, word_list, sound_name):
-        self.screen = pygame.display.set_mode((1366, 768))#, pygame.FULLSCREEN)
+        self.screen = pygame.display.set_mode((1366, 768), pygame.FULLSCREEN)
         self.font = pygame.font.Font("times.ttf", 35)
         self.clock = pygame.time.Clock()
         self.word_file = open(word_list)
